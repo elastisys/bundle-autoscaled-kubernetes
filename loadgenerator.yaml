@@ -1,0 +1,15 @@
+apiVersion: v1
+kind: ReplicationController
+metadata:
+  name: loadgenerator
+spec:
+  replicas: 1
+  template:
+    metadata:
+      labels:
+        app: stress
+    spec:
+      containers:
+      - name: stress
+        image: elastisys/stress
+        imagePullPolicy: IfNotPresent

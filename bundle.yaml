@@ -1,0 +1,96 @@
+series: xenial
+applications:
+  etcd:
+    charm: "cs:~containers/etcd-23"
+    num_units: 1
+    annotations:
+      "gui-x": "-32"
+      "gui-y": "200"
+    to:
+      - "0"
+  easyrsa:
+    charm: "cs:~containers/easyrsa-6"
+    num_units: 1
+    annotations:
+      "gui-x": "-264"
+      "gui-y": "350"
+    to:
+      - "lxd:charmscaler/0"
+  flannel:
+    charm: "cs:~containers/flannel-10"
+    annotations:
+      "gui-x": "218"
+      "gui-y": "380"
+  "kubernetes-master":
+    charm: "cs:~containers/kubernetes-master-11"
+    expose: true
+    num_units: 1
+    annotations:
+      "gui-x": "-32"
+      "gui-y": "500"
+    to:
+      - "0"
+  "kubernetes-worker":
+    charm: "cs:~containers/kubernetes-worker-13"
+    expose: true
+    num_units: 1
+    annotations:
+      "gui-x": "-32"
+      "gui-y": "800"
+    to:
+      - "1"
+  charmscaler:
+    charm: "cs:~elastisys/charmscaler-5"
+    num_units: 1
+    annotations:
+      "gui-x": "-232"
+      "gui-y": "700"
+    to:
+      - "0"
+  telegraf:
+    charm: "cs:telegraf-1"
+    annotations:
+      "gui-x": "170"
+      "gui-y": "730"
+  influxdb:
+    charm: "cs:~chris.macnaughton/influxdb-6"
+    num_units: 1
+    annotations:
+      "gui-x": "-32"
+      "gui-y": "1050"
+    to:
+      - "0"
+relations:
+  - - "kubernetes-master:certificates"
+    - "easyrsa:client"
+  - - "kubernetes-master:etcd"
+    - "etcd:db"
+  - - "kubernetes-worker:certificates"
+    - "easyrsa:client"
+  - - "etcd:certificates"
+    - "easyrsa:client"
+  - - "flannel:etcd"
+    - "etcd:db"
+  - - "flannel:cni"
+    - "kubernetes-master:cni"
+  - - "telegraf:juju-info"
+    - "kubernetes-worker:juju-info"
+  - - "charmscaler:db-api"
+    - "influxdb:api"
+  - - "telegraf:influxdb-api"
+    - "influxdb:api"
+  - - "charmscaler:scalable-charm"
+    - "kubernetes-worker:juju-info"
+  - - "kubernetes-master:kube-api-endpoint"
+    - "kubernetes-worker:kube-api-endpoint"
+  - - "kubernetes-master:cluster-dns"
+    - "kubernetes-worker:kube-dns"
+  - - "flannel:cni"
+    - "kubernetes-worker:cni"
+machines:
+  "0":
+    series: xenial
+    #constraints: "arch=amd64 cpu-cores=1 cpu-power=350 mem=3840 root-disk=8192"
+  "1":
+    series: xenial
+    #constraints: "arch=amd64 cpu-cores=1 cpu-power=350 mem=3840 root-disk=8192"
